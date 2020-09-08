@@ -3,6 +3,7 @@ const app = require("./app");
 const { API_VERSION, IP_SERVER, PORT_DB, PORT_SERVER } = require("./config");
 
 mongoose.set("useFindAndModify", false);
+mongoose.set('useCreateIndex', true);
 mongoose.connect(
   `mongodb://${IP_SERVER}:${PORT_DB}/davidthomaspizarrofrick`,
   { useNewUrlParser: true, useUnifiedTopology: true },
