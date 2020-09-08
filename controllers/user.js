@@ -23,9 +23,7 @@ function signUp(req, res) {
     } else {
       bcrypt.hash(password, null, null, function (err, hash) {
         if (err) {
-          res
-            .status(500)
-            .send({ message: "Error al encriptar la contraseña." });
+          res.status(500).send({ message: "Error al encriptar la contraseña." });
         } else {
           user.password = hash;
           user.save((err, userStored) => {
@@ -61,12 +59,10 @@ function signIn(req, res) {
           if (err) {
             res.status(500).send({ message: "Error del servidor." });
           } else if (!check) {
-            res.status(404).send({ message: "La contraseña es incorrecta." });
-          } else {
-            if (!userStored.active) {
-              res
-                .status(200)
-                .send({ code: 200, message: "El usuario no se ha activado." });
+            res.status(404).send({message: "La contraseña es incorrecta."});
+          }
+          else {
+            if (!userStored.active) { res.status(200).send({ code: 200, message: "El usuario no se ha activado." });
             } else {
               res.status(200).send({
                 accessToken: jwt.createAccessToken(userStored),
@@ -81,13 +77,13 @@ function signIn(req, res) {
 }
 
 function getUsers(req, res) {
-  User.find().then((users) => {
+  User.find().then(users => {
     if (!users) {
-      res.status(404).send({ message: "No se ha encontrado ningún usuario" });
+      res.status(404).send({ message: "No se ha encontrado ningún usuario"});
     } else {
-      res.status(200).send({ users });
+      res.status(200).send({ users })
     }
-  });
+  })
 }
 
 module.exports = {
