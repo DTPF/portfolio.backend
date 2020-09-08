@@ -13,24 +13,24 @@ function signUp(req, res) {
   user.active = false;
 
   if (!password || !repeatPassword) {
-    res.status(404).send({ message: "Las contraseñas son obligatorias" });
+    res.status(404).send({ message: "Las contraseñas son obligatorias." });
   } else {
     if (password !== repeatPassword) {
       res
         .status(404)
-        .send({ message: "Las contraseñas tienen que ser iguales" });
+        .send({ message: "Las contraseñas tienen que ser iguales." });
     } else {
       bcrypt.hash(password, null, null, function (err, hash) {
         if (err) {
-          res.status(500).send({ message: "Error al encriptar la contraseña" });
+          res.status(500).send({ message: "Error al encriptar la contraseña." });
         } else {
           user.password = hash;
           user.save((err, userStored) => {
             if (err) {
-              res.status(500).send({ message: "El usuario ya existe" });
+              res.status(500).send({ message: "El usuario ya existe." });
             } else {
               if (!userStored) {
-                res.status(404).send({ message: "Error al crear el usuario" });
+                res.status(404).send({ message: "Error al crear el usuario." });
               } else {
                 res.status(200).send({ user: userStored });
               }
@@ -58,7 +58,7 @@ function signIn(req, res) {
           if (err) {
             res.status(500).send({ message: "Error del servidor." });
           } else if (!check) {
-            res.status(404).send({message: "La contraseña es incorrecta"});
+            res.status(404).send({message: "La contraseña es incorrecta."});
           }
           else {
             if (!userStored.active) { res.status(200).send({ code: 200, message: "El usuario no se ha activado." });
