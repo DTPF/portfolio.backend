@@ -3,6 +3,7 @@ const path = require("path");
 const bcrypt = require("bcrypt-nodejs");
 const jwt = require("../services/jwt");
 const User = require("../models/user");
+const { exists } = require("../models/user");
 
 function signUp(req, res) {
   const user = new User();
@@ -91,7 +92,7 @@ function getUsers(req, res) {
   });
 }
 
-function getUsersActive(req, res) {
+function getUsersActive(req, res, next) {
   const query = req.query;
   User.find({ active: query.active }).then((users) => {
     if (!users) {
@@ -108,48 +109,98 @@ function uploadAvatar(req, res) {
   const params = req.params;
 
   User.findById({ _id: params.id }, (err, userData) => {
+
     if (err) {
       res.status(500).send({ message: "Error del servidor." });
     } else {
       if (!userData) {
         res
-          .status(404)
-          .send({ message: "No se ha encontrado ningún usuario." });
+        .status(404)
+        .send({ message: "No se ha encontrado ningún usuario." });
       } else {
         let user = userData;
-
-        if (req.files) {
-          let filePath = req.files.avatar.path;
-          let fileSplit = filePath.split("/");
-          let fileName = fileSplit[2];
-
-          let extSplit = fileName.split(".");
-          let fileExt = extSplit[1];
-
-          if (fileExt !== "png" && fileExt !== "jpg" && fileExt !== "JPG") {
-            res.status(400).send({
-              message:
-                "La extensión de la imagen no es válida. (Extensiones permitidas: .png y .jpg)",
-            });
-          } else {
-            user.avatar = fileName;
-            User.findByIdAndUpdate({ _id: params.id }, user, (err, userResult) => {
-                if (err) {
-                  res.status(500).send({ message: "Error del servidor." });
-                } else {
-                  if (!userResult) {
-                    res
-                      .status(404)
-                      .send({ message: "No se ha encontrado ningún usuario." });
+        const avatarNameOld = user.avatar;
+        const filePathOld = "./uploads/avatar/" + avatarNameOld;
+        if(avatarNameOld === undefined) {
+          if (req.files) {
+            let filePath = req.files.avatar.path;
+            let fileSplit = filePath.split("/");
+            let fileName = fileSplit[2];
+  
+            let extSplit = fileName.split(".");
+            let fileExt = extSplit[1];
+  
+            if (fileExt !== "png" && fileExt !== "jpg" && fileExt !== "JPG") {
+              res.status(400).send({
+                message:
+                  "La extensión de la imagen no es válida. (Extensiones permitidas: .png y .jpg)",
+              });
+            } else {
+              user.avatar = fileName;
+              User.findByIdAndUpdate( { _id: params.id }, user, (err, userResult) => {
+                  if (err) {
+                    res.status(500).send({ message: "Error del servidor." });
                   } else {
-                    res.status(200).send({ avatarName: fileName });
+                    if (!userResult) {
+                      res
+                        .status(404)
+                        .send({ message: "No se ha encontrado ningún usuario." });
+                    } else {
+                      res.status(200).send({ avatarName: fileName });
+                    }
                   }
                 }
-              }
-            );
+              );
+            }
+          }
+        } else {
+          fs.unlinkSync(filePathOld);
+          if (req.files) {
+            let filePath = req.files.avatar.path;
+            let fileSplit = filePath.split("/");
+            let fileName = fileSplit[2];
+  
+            let extSplit = fileName.split(".");
+            let fileExt = extSplit[1];
+  
+            if (fileExt !== "png" && fileExt !== "jpg" && fileExt !== "JPG") {
+              res.status(400).send({
+                message:
+                  "La extensión de la imagen no es válida. (Extensiones permitidas: .png y .jpg)",
+              });
+            } else {
+              user.avatar = fileName;
+              User.findByIdAndUpdate( { _id: params.id }, user, (err, userResult) => {
+                  if (err) {
+                    res.status(500).send({ message: "Error del servidor." });
+                  } else {
+                    if (!userResult) {
+                      res
+                        .status(404)
+                        .send({ message: "No se ha encontrado ningún usuario." });
+                    } else {
+                      res.status(200).send({ avatarName: fileName });
+                    }
+                  }
+                }
+              );
+            }
           }
         }
       }
+    }
+  });
+}
+
+function getAvatar(req, res) {
+  const avatarName = req.params.avatarName;
+  const filePath = "./uploads/avatar/" + avatarName;
+
+  fs.exists(filePath, (exists) => {
+    if (!exists) {
+      res.status(404).send({ message: "El avatar que buscas no existe." });
+    } else {
+      res.sendFile(path.resolve(filePath));
     }
   });
 }
@@ -160,4 +211,5 @@ module.exports = {
   getUsers,
   getUsersActive,
   uploadAvatar,
+  getAvatar,
 };
