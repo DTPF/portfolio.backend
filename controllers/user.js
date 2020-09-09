@@ -3,7 +3,6 @@ const path = require("path");
 const bcrypt = require("bcrypt-nodejs");
 const jwt = require("../services/jwt");
 const User = require("../models/user");
-const { exists } = require("../models/user");
 
 function signUp(req, res) {
   const user = new User();
@@ -204,9 +203,20 @@ function getAvatar(req, res) {
   });
 }
 
-function updateUser(req, res) {
-  const userData = req.body;
+async function updateUser(req, res) {
+  let userData = req.body;
+  userData.email = req.body.email.toLowerCase();
   const params = req.params;
+
+  if(userData.password) {
+    await bcrypt.hash(userData.password, null, null, (err, hash) => {
+      if(err) {
+        res.status(500).send({ message: "Error al encriptar la contraseña."});
+      } else {
+        userData.password = hash;
+      }
+    })
+  }
 
   User.findByIdAndUpdate({ _id: params.id }, userData, (err, userUpdate) => {
     if(err) {
