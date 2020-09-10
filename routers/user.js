@@ -14,5 +14,6 @@ api.get("/users-active", [md_auth.ensureAuth], UserController.getUsersActive);
 api.put("/upload-avatar/:id", [md_auth.ensureAuth, md_upload_avatar], UserController.uploadAvatar);
 api.get("/get-avatar/:avatarName", UserController.getAvatar);
 api.put("/update-user/:id", [md_auth.ensureAuth], UserController.updateUser);
+api.put("/activate-user/:id", [md_auth.ensureAuth], UserController.activateUser);
 
 module.exports = api;
