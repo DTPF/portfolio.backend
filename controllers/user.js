@@ -7,9 +7,9 @@ const User = require("../models/user");
 function signUp(req, res) {
   const user = new User();
 
-  const { name, lastName, email, password, repeatPassword } = req.body;
+  const { name, lastname, email, password, repeatPassword } = req.body;
   user.name = name;
-  user.lastName = lastName;
+  user.lastname = lastname;
   user.email = email.toLowerCase();
   user.role = "admin";
   user.active = false;
@@ -290,9 +290,9 @@ function deleteUser(req, res) {
 function signUpAdmin(req, res) {
   const user = new User();
 
-  const { name, lastName, email, role, password } = req.body;
+  const { name, lastname, email, role, password } = req.body;
   user.name = name;
-  user.lastName = lastName;
+  user.lastname = lastname;
   user.email = email.toLowerCase();
   user.role = role;
   user.active = true;
