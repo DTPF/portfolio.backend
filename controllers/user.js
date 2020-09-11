@@ -287,6 +287,41 @@ function deleteUser(req, res) {
   });
 }
 
+function signUpAdmin(req, res) {
+  const user = new User();
+
+  const { name, lastName, email, role, password } = req.body;
+  user.name = name;
+  user.lastName = lastName;
+  user.email = email.toLowerCase();
+  user.role = role;
+  user.active = true;
+
+  if(!password) {
+    res.status(500).send({ message: "La contraseña es obligatoria." });
+  } else {
+    bcrypt.hash(password, null, null, (err, hash) => {
+      if(err) {
+        res.status(500).send({ message: "Error al encriptar la contraseña." });
+      } else {
+        user.password = hash;
+        user.save((err, userStored) => {
+          if(err) {
+            res.status(500).send({ message: "El usuario ya existe." });
+          } else {
+            if(!userStored) {
+              res.status(500).send({ message: "Error al crear el usuario." });
+            } else {
+              res.status(200).send({ user: userStored });
+            }
+          }
+        });
+      }
+    });
+  }
+
+}
+
 module.exports = {
   signUp,
   signIn,
@@ -297,4 +332,5 @@ module.exports = {
   updateUser,
   activateUser,
   deleteUser,
+  signUpAdmin
 };
