@@ -6,7 +6,6 @@ const User = require("../models/user");
 
 function signUp(req, res) {
   const user = new User();
-
   const { name, lastname, email, password, repeatPassword } = req.body;
   user.name = name;
   user.lastname = lastname;
@@ -53,7 +52,7 @@ function signIn(req, res) {
 
   User.findOne({ email }, (err, userStored) => {
     if (err) {
-      res.status(500).send({ message: "Error del servider." });
+      res.status(500).send({ message: "Error del servidor." });
     } else {
       if (!userStored) {
         res.status(404).send({ message: "Usuario no encontrado." });
@@ -71,7 +70,7 @@ function signIn(req, res) {
             } else {
               res.status(200).send({
                 accessToken: jwt.createAccessToken(userStored),
-                refreshToken: jwt.createRefreshToken(userStored),
+                refreshToken: jwt.createRefreshToken(userStored)
               });
             }
           }
@@ -84,7 +83,7 @@ function signIn(req, res) {
 function getUsers(req, res) {
   User.find().then((users) => {
     if (!users) {
-      res.status(404).send({ message: "No se ha encontrado ningún usuario" });
+      res.status(404).send({ message: "No se ha encontrado ningún usuario." });
     } else {
       res.status(200).send({ users });
     }
@@ -119,12 +118,10 @@ function uploadAvatar(req, res) {
         let user = userData;
         const avatarNameOld = user.avatar;
         const filePathOld = "./uploads/avatar/" + avatarNameOld;
-
         if (req.files) {
           let filePath = req.files.avatar.path;
           let fileSplit = filePath.split("/");
           let fileName = fileSplit[2];
-
           let extSplit = fileName.split(".");
           let fileExt = extSplit[1];
 
@@ -182,7 +179,7 @@ async function updateUser(req, res) {
   if (userData.password) {
     await bcrypt.hash(userData.password, null, null, (err, hash) => {
       if (err) {
-        res.status(500).send({ message: "Error al encriptar la contraseña." });
+        res.status(500).send({ message: "Error al encriptar la contraseña.", status: 500 });
       } else {
         userData.password = hash;
       }
@@ -243,7 +240,7 @@ function deleteUser(req, res) {
       } else {
         res
           .status(200)
-          .send({ message: "El usuario ha sido eliminado correctamente" });
+          .send({ message: "El usuario ha sido eliminado correctamente." });
         if (avatarPath !== undefined) {
           fs.unlinkSync(filePathToDelete);
         }
