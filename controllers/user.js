@@ -119,6 +119,7 @@ function uploadAvatar(req, res) {
         let user = userData;
         const avatarNameOld = user.avatar;
         const filePathOld = "./uploads/avatar/" + avatarNameOld;
+        // Si no tiene avatar
         if (avatarNameOld === undefined) {
           if (req.files) {
             let filePath = req.files.avatar.path;
@@ -128,12 +129,7 @@ function uploadAvatar(req, res) {
             let extSplit = fileName.split(".");
             let fileExt = extSplit[1];
 
-            if (
-              fileExt !== "png" &&
-              fileExt !== "jpg" &&
-              fileExt !== "jpeg" &&
-              fileExt !== "JPG"
-            ) {
+            if ( fileExt !== "png" && fileExt !== "jpg" && fileExt !== "jpeg" && fileExt !== "JPG" ) {
               res.status(400).send({
                 message:
                   "La extensión de la imagen no es válida. (Extensiones permitidas: .png y .jpg)",
@@ -149,10 +145,7 @@ function uploadAvatar(req, res) {
                   } else {
                     if (!userResult) {
                       res
-                        .status(404)
-                        .send({
-                          message: "No se ha encontrado ningún usuario.",
-                        });
+                        .status(404).send({ message: "No se ha encontrado ningún usuario." });
                     } else {
                       res.status(200).send({ avatarName: fileName });
                     }
@@ -161,7 +154,9 @@ function uploadAvatar(req, res) {
               );
             }
           }
-        } else {
+        } 
+        // Si tiene avatar eliminamos el avatar anterior
+        else {
           if (req.files) {
             let filePath = req.files.avatar.path;
             let fileSplit = filePath.split("/");
@@ -170,12 +165,7 @@ function uploadAvatar(req, res) {
             let extSplit = fileName.split(".");
             let fileExt = extSplit[1];
 
-            if (
-              fileExt !== "png" &&
-              fileExt !== "jpg" &&
-              fileExt !== "jpeg" &&
-              fileExt !== "JPG"
-            ) {
+            if ( fileExt !== "png" && fileExt !== "jpg" && fileExt !== "jpeg" && fileExt !== "JPG" ) {
               res.status(400).send({
                 message:
                   "La extensión de la imagen no es válida. (Extensiones permitidas: .png y .jpg)",
@@ -190,11 +180,7 @@ function uploadAvatar(req, res) {
                     res.status(500).send({ message: "Error del servidor." });
                   } else {
                     if (!userResult) {
-                      res
-                        .status(404)
-                        .send({
-                          message: "No se ha encontrado ningún usuario.",
-                        });
+                      res.status(404).send({ message: "No se ha encontrado ningún usuario." });
                     } else {
                       fs.unlinkSync(filePathOld);
                       res.status(200).send({ avatarName: fileName });
@@ -241,15 +227,15 @@ async function updateUser(req, res) {
   User.findByIdAndUpdate({ _id: params.id }, userData, (err, userUpdate) => {
     if(err) {
       if(err.codeName === "DuplicateKey") {
-        res.status(500).send({ message: "Este email ya existe en la base de datos." });
+        res.status(500).send({ message: "Este email ya existe en la base de datos.", status: 500 });
       } else {
-        res.status(500).send({ message: "Error del servidor." });
+        res.status(500).send({ message: "Error del servidor.", status: 500 });
       }
     } else {
       if (!userUpdate) {
-        res.status(404).send({ message: "No se ha encontrado ningún usuario." });
+        res.status(404).send({ message: "No se ha encontrado ningún usuario.", status: 404 });
       } else {
-        res.status(200).send({ message: "Usuario actualizado correctamente." });
+        res.status(200).send({ message: "Usuario actualizado correctamente.", status: 200 });
       }
     }
   });
