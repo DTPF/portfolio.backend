@@ -298,21 +298,21 @@ function signUpAdmin(req, res) {
   user.active = true;
 
   if(!password) {
-    res.status(500).send({ message: "La contraseña es obligatoria." });
+    res.status(500).send({ message: "La contraseña es obligatoria.", status: 500 });
   } else {
     bcrypt.hash(password, null, null, (err, hash) => {
       if(err) {
-        res.status(500).send({ message: "Error al encriptar la contraseña." });
+        res.status(500).send({ message: "Error al encriptar la contraseña.", status: 500 });
       } else {
         user.password = hash;
         user.save((err, userStored) => {
           if(err) {
-            res.status(500).send({ message: "El usuario ya existe." });
+            res.status(500).send({ message: "El usuario ya existe.", status: 500 });
           } else {
             if(!userStored) {
-              res.status(500).send({ message: "Error al crear el usuario." });
+              res.status(500).send({ message: "Error al crear el usuario.", status: 500 });
             } else {
-              res.status(200).send({ user: userStored });
+              res.status(200).send({ user: userStored, message: "Usuario creado correctamente.", status: 200 });
             }
           }
         });
