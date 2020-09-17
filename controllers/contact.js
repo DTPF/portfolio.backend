@@ -76,6 +76,39 @@ function contactMe(req, res) {
   }
 }
 
+function getMessages(req, res) {
+  Contact.find()
+         .sort({ order: "asc"})
+         .exec((err, messagesStored) => {
+           console.log(messagesStored);
+           if(err) {
+             res.status(500).send({ status: 500, message: "Error del servidor." });
+           } else if (!messagesStored) {
+             res.status(404).send({ status: 404, message: "No hay mensajes en la base de datos." });
+           } else {
+             res.status(200).send({ status: 200, messages: messagesStored });
+           }
+         });
+}
+
+function getMessagesUnread(req, res) {
+  const query = req.query;
+  Contact.find({ readed: query.readed })
+        .sort({ order: "asc"})
+        .exec((err, messagesStored) => {
+          console.log(messagesStored);
+          if(err) {
+            res.status(500).send({ status: 500, message: "Error del servidor." });
+          } else if (!messagesStored) {
+            res.status(404).send({ status: 404, message: "No hay mensajes en la base de datos." });
+          } else {
+            res.status(200).send({ status: 200, messages: messagesStored });
+          }
+        });
+}
+
 module.exports = {
   contactMe,
+  getMessages,
+  getMessagesUnread
 };
