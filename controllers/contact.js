@@ -80,7 +80,6 @@ function getMessages(req, res) {
   Contact.find()
          .sort({ order: "asc"})
          .exec((err, messagesStored) => {
-           console.log(messagesStored);
            if(err) {
              res.status(500).send({ status: 500, message: "Error del servidor." });
            } else if (!messagesStored) {
@@ -96,7 +95,6 @@ function getMessagesUnread(req, res) {
   Contact.find({ readed: query.readed })
         .sort({ order: "asc"})
         .exec((err, messagesStored) => {
-          console.log(messagesStored);
           if(err) {
             res.status(500).send({ status: 500, message: "Error del servidor." });
           } else if (!messagesStored) {
