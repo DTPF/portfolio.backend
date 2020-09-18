@@ -107,8 +107,28 @@ function getMessagesUnread(req, res) {
         });
 }
 
+function checkMessage(req, res) {
+  const { id } = req.params;
+  const { readed } = req.body;
+  
+  Contact.findByIdAndUpdate(id, {readed}, (err, messageChecked) => {
+    if (err) {
+      res.status(500).send({ status: 500, message: "Error del servidor."} );
+    } else if (!messageChecked) {
+      res.status(404).send({ status: 404, message: "No se ha encontrado el mensaje." });
+    } else {
+      if (readed === true) {
+        res.status(200).send({ status: 200, message: "Mensaje marcado como leído." });
+      } else {
+        res.status(200).send({ status: 200, message: "Mensaje sacado de la bandeja de leídos." });
+      }
+    }
+  });
+}
+
 module.exports = {
   contactMe,
   getMessages,
-  getMessagesUnread
+  getMessagesUnread,
+  checkMessage
 };
