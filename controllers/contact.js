@@ -126,9 +126,24 @@ function checkMessage(req, res) {
   });
 }
 
+function deleteMessage(req, res) {
+  const { id } = req.params;
+
+  Contact.findByIdAndRemove(id, (err, messageDelete) => {
+    if(err) {
+      res.status(500).send({ status: 500, message: "Error del servidor." });
+    } else if (!messageDelete) {
+      res.status(404).send({ status: 404, message: "Mensaje no encontrado en la base de datos." });
+    } else {
+      res.status(200).send({ status: 200, message: "Mensaje eliminado correctamente." })
+    }
+  });
+}
+
 module.exports = {
   contactMe,
   getMessages,
   getMessagesUnread,
-  checkMessage
+  checkMessage,
+  deleteMessage
 };
