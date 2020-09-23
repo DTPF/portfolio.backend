@@ -6,6 +6,7 @@ const ContactSchema = Schema({
     name: String,
     subject: String,
     readed: Boolean,
+    order: Number,
     date: { type: Date, default: Date.now }
 });
 
