@@ -1,5 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+var path = require('path');
 
 const app = express();
 const { API_VERSION } = require("./config");
@@ -30,5 +31,9 @@ app.use(`/api/${API_VERSION}`, authRoutes);
 app.use(`/api/${API_VERSION}`, userRoutes);
 app.use(`/api/${API_VERSION}`, menuRoutes);
 app.use(`/api/${API_VERSION}`, contactRoutes);
+app.use('/', express.static('client', {redirect: false}));
+app.get('*', function(req, res, next){
+  res.sendFile(path.resolve('client/index.html'));
+});
 
 module.exports = app;
