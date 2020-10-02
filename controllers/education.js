@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const Education = require("../models/education");
+const imagemagick = require("imagemagick-native-12");
 
 function addCourse(req, res) {
   const course = new Education();
@@ -107,6 +108,7 @@ function uploadImage(req, res) {
       let course = courseData;
       const imageOld = course.image;
       const filePathOld = "./uploads/education/" + imageOld;
+      const filePathThumbOld = "./uploads/education/thumb_" + imageOld;
       if (req.files) {
         let filePath = req.files.image.path;
         let fileSplit = filePath.split("/");
@@ -117,7 +119,6 @@ function uploadImage(req, res) {
         if (req.files.image.type === null) {
             res.status(404).send({ status: 404, message: "La imágen es obligatoria." });
         } else if (
-          fileExt !== "webp" &&
           fileExt !== "jpg" &&
           fileExt !== "jpeg" &&
           fileExt !== "png"
@@ -125,7 +126,7 @@ function uploadImage(req, res) {
           res.status(400).send({
             status: 400,
             message:
-              "La extensión de la imagen no es válida. (Extensiones permitidas: .webp, .png y .jpg)",
+              "La extensión de la imagen no es válida. (Extensiones permitidas: .png y .jpg)",
           });
         } else {
           course.image = fileName;
@@ -145,7 +146,16 @@ function uploadImage(req, res) {
               } else {
                 if (imageOld !== undefined) {
                   fs.unlinkSync(filePathOld);
+                  fs.unlinkSync(filePathThumbOld);
                 }
+                const filePathNew = "./uploads/education/" + fileName;
+                fs.writeFileSync('./uploads/education/thumb_'+ fileName, imagemagick.convert({
+                  srcData: fs.readFileSync(filePathNew),
+                  width: 340,
+                  height: 205,
+                  resizeStyle: 'aspectfill',
+                  gravity: 'Center'
+              }));
                 res.status(200).send({
                   status: 200,
                   message: "Imágen añadida correctamente.",
