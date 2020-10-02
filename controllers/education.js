@@ -71,7 +71,7 @@ function updateCourse(req, res) {
 }
 
 function getCourses(req, res) {
-  const { page = 1, limit = 3 } = req.query;
+  const { page = 1, limit = 9 } = req.query;
 
   const options = {
     page,

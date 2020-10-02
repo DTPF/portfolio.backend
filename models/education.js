@@ -11,6 +11,7 @@ const EducationSchema = Schema({
     duration: Number,
     date: Date,
     image: String,
+    link: String,
     tags: []
 });
 EducationSchema.plugin(mongoosePaginate);
