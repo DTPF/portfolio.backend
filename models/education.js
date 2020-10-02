@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const mongoosePaginate = require("mongoose-paginate-v2");
 const Schema = mongoose.Schema;
 
 const EducationSchema = Schema({
@@ -12,5 +13,6 @@ const EducationSchema = Schema({
     image: String,
     tags: []
 });
+EducationSchema.plugin(mongoosePaginate);
 
 module.exports = mongoose.model('Education', EducationSchema);

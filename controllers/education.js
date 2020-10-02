@@ -71,15 +71,25 @@ function updateCourse(req, res) {
 }
 
 function getCourses(req, res) {
-  Education.find().sort({ date: "desc"}).exec((err, courses) => {
+  const { page = 1, limit = 3 } = req.query;
+
+  const options = {
+    page,
+    limit: parseInt(limit),
+    sort: { date: "desc" }
+  };
+
+  Education.paginate({}, options, (err, coursesStored) => {
     if (err) {
       res.status(500).send({ status: 500, message: "Error del servidor." });
-    } else if (courses.length === 0) {
-      res
-        .status(404)
-        .send({ status: 404, message: "No se han encontrado cursos." });
     } else {
-      res.status(200).send({ status: 200, courses: courses });
+      if (!coursesStored) {
+        res
+          .status(404)
+          .send({ status: 404, message: "No se ha encontrado ningun post." });
+      } else {
+        res.status(200).send({ status: 200, courses: coursesStored });
+      }
     }
   });
 }
