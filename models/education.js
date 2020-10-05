@@ -9,10 +9,11 @@ const EducationSchema = Schema({
     },
     description: String,
     duration: Number,
-    date: Date,
     image: String,
     link: String,
-    tags: []
+    tags: [],
+    url:String,
+    date: { type: Date, default: Date.now }
 });
 EducationSchema.plugin(mongoosePaginate);
 

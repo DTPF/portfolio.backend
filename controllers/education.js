@@ -5,13 +5,14 @@ const imagemagick = require("imagemagick-native-12");
 
 function addCourse(req, res) {
   const course = new Education();
-  const { title, description, duration, date } = req.body;
+  const { title, description, duration, date, url } = req.body;
   course.title = title;
   course.description = description;
   course.duration = duration;
-  course.date = date;
+  course.date = date ? date : course.date;
+  course.url = url;
 
-  if (!title || !description || !duration) {
+  if (!title) {
     res.status(404).send({
       status: 404,
       message: "Todos los campos son obligatorios.",
@@ -45,7 +46,6 @@ function addCourse(req, res) {
 function updateCourse(req, res) {
   const params = req.params;
   let courseData = req.body;
-
   Education.findByIdAndUpdate(
     { _id: params.id },
     courseData,
@@ -78,7 +78,6 @@ function getCourses(req, res) {
     limit: parseInt(limit),
     sort: {date: "desc"}
   };
-
   Education.paginate({}, options, (err, coursesStored) => {
     if (err) {
       res.status(500).send({ status: 500, message: "Error del servidor." });
@@ -86,10 +85,23 @@ function getCourses(req, res) {
       if (coursesStored.docs.length === 0) {
         res
           .status(404)
-          .send({ status: 404, message: "No se ha encontrado ningun post." });
+          .send({ status: 404, message: "No se ha encontrado ningun curso." });
       } else {
         res.status(200).send({ status: 200, courses: coursesStored });
       }
+    }
+  });
+}
+
+function getCourse(req, res) {
+  const { url } = req.params;  
+  Education.findOne({ url }, (err, courseStored) => {
+    if (err) {
+      res.status(500).send({status: 500, message: "Error del servidor."});
+    } else if (!courseStored) {
+      res.status(404).send({status: 404, message: "No se ha encontrado el curso."});
+    } else {
+      res.status(200).send({status: 200, course: courseStored});
     }
   });
 }
@@ -170,10 +182,8 @@ function uploadImage(req, res) {
 }
 
 function getImage(req, res) {
-  // console.log("getImage");
   const imageName = req.params.imageName;
   const filePath = "./uploads/education/" + imageName;
-
   fs.exists(filePath, (exists) => {
     if (!exists) {
       res.status(404).send({ message: "La imagen que buscas no existe." });
@@ -187,39 +197,43 @@ function addTag(req, res) {
   const params = req.params;
   let courseTag = req.body;
 
-  Education.findById({ _id: params.id }, (err, tagMatch) => {
-    const tags = tagMatch.tags;
-    const match = tags.includes(courseTag.tags);
-    if (err) {
-      res.status(500).send({ status: 500, message: "Error del servidor." });
-    } else if (!tagMatch) {
-      res
-        .status(404)
-        .send({ status: 404, message: "No se ha encontrado el curso." });
-    } else if (match) {
-      res.status(404).send({ status: 404, message: "Ya existe este tag." });
-    } else {
-      Education.findByIdAndUpdate(
-        { _id: params.id },
-        { $push: courseTag },
-        (err, courseData) => {
-          if (err) {
-            res
-              .status(500)
-              .send({ status: 500, message: "Error del servidor." });
-          } else if (!courseData) {
-            res
-              .status(404)
-              .send({ status: 404, message: "No se ha encontrado el curso." });
-          } else {
-            res
-              .status(200)
-              .send({ status: 200, message: "Tag añadido correctamente." });
+  if (courseTag.length === 0) {
+    res.status(400).send({ status: 400, message: "Introduce el tag." });
+  } else {
+    Education.findById({ _id: params.id }, (err, tagMatch) => {
+      const tags = tagMatch.tags;
+      const match = tags.includes(courseTag.tags);
+      if (err) {
+        res.status(500).send({ status: 500, message: "Error del servidor." });
+      } else if (!tagMatch) {
+        res
+          .status(404)
+          .send({ status: 404, message: "No se ha encontrado el curso." });
+      } else if (match) {
+        res.status(404).send({ status: 404, message: "Ya existe este tag." });
+      } else {
+        Education.findByIdAndUpdate(
+          { _id: params.id },
+          { $push: courseTag },
+          (err, courseData) => {
+            if (err) {
+              res
+                .status(500)
+                .send({ status: 500, message: "Error del servidor." });
+            } else if (!courseData) {
+              res
+                .status(404)
+                .send({ status: 404, message: "No se ha encontrado el curso." });
+            } else {
+              res
+                .status(200)
+                .send({ status: 200, message: "Tag añadido correctamente." });
+            }
           }
-        }
-      );
-    }
-  });
+        );
+      }
+    });
+  }
 }
 
 function deleteTag(req, res) {
@@ -268,6 +282,7 @@ function deleteCourse(req, res) {
 module.exports = {
   addCourse,
   getCourses,
+  getCourse,
   uploadImage,
   addTag,
   updateCourse,

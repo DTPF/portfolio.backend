@@ -10,6 +10,7 @@ const api = express.Router();
 api.post("/add-course", [md_auth.ensureAuth], EducationController.addCourse);
 api.put("/update-course/:id", [md_auth.ensureAuth], EducationController.updateCourse);
 api.get("/get-courses", EducationController.getCourses);
+api.get("/get-course/:url", EducationController.getCourse);
 api.put("/upload-image/:id", [md_auth.ensureAuth, md_upload_image], EducationController.uploadImage);
 api.put("/add-tag/:id", [md_auth.ensureAuth], EducationController.addTag);
 api.delete("/delete-tag/:id", [md_auth.ensureAuth], EducationController.deleteTag);
