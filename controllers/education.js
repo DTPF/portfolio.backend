@@ -5,12 +5,13 @@ const imagemagick = require("imagemagick-native-12");
 
 function addCourse(req, res) {
   const course = new Education();
-  const { title, description, duration, date, url } = req.body;
+  const { title, description, duration, date, url, platform } = req.body;
   course.title = title;
   course.description = description;
   course.duration = duration;
   course.date = date ? date : course.date;
   course.url = url;
+  course.platform = platform;
 
   if (!title) {
     res.status(404).send({

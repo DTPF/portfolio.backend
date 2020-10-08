@@ -10,6 +10,7 @@ const EducationSchema = Schema({
     description: String,
     duration: Number,
     image: String,
+    platform: String,
     link: String,
     tags: [],
     url:String,
