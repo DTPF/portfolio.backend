@@ -133,6 +133,7 @@ function uploadImage(req, res) {
         } else if (
           fileExt !== "jpg" &&
           fileExt !== "jpeg" &&
+          fileExt !== "JPG" &&
           fileExt !== "png"
         ) {
           res.status(400).send({
