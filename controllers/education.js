@@ -4,44 +4,62 @@ const Education = require("../models/education");
 const imagemagick = require("imagemagick-native-12");
 
 function addCourse(req, res) {
-  const course = new Education();
-  const { title, description, duration, date, url, platform } = req.body;
-  course.title = title;
-  course.description = description;
-  course.duration = duration;
-  course.date = date ? date : course.date;
-  course.url = url;
-  course.platform = platform;
-
-  if (!title) {
-    res.status(404).send({
-      status: 404,
-      message: "Todos los campos son obligatorios.",
-    });
-  } else {
-    course.save((err, courseStored) => {
-      if (err) {
-        if (err.code === 11000) {
-          res
-            .status(404)
-            .send({ status: 404, message: "Este título ya existe." });
-        } else {
-          res.status(500).send({
-            status: 500,
-            message: "Error del servidor, inténtalo más tarde.",
-          });
-        }
-      } else if (!courseStored) {
+  const { page = 1, limit = 10000 } = req.query;
+  const options = {
+    page,
+    limit: parseInt(limit),
+    sort: { date: "desc" },
+  };
+  Education.paginate({}, options, (err, coursesStored) => {
+    if (err) {
+      res.status(500).send({ status: 500, message: "Error del servidor." });
+    } else {
+      if (coursesStored.docs.length === 0) {
         res
           .status(404)
-          .send({ status: 404, message: "Error al enviar la petición." });
+          .send({ status: 404, message: "Error al localizar el anterior curso." });
       } else {
-        res
-          .status(200)
-          .send({ status: 200, message: "Curso creado correctamente." });
+        const course = new Education();
+        const { title, description, duration, date, url, platform } = req.body;
+        course.title = title;
+        course.description = description;
+        course.duration = duration;
+        course.date = date ? date : course.date;
+        course.url = url;
+        course.platform = platform;
+        course.order = coursesStored.totalDocs + 1;
+        if (!title) {
+          res.status(404).send({
+            status: 404,
+            message: "Todos los campos son obligatorios.",
+          });
+        } else {
+          course.save((err, courseStored) => {
+            if (err) {
+              if (err.code === 11000) {
+                res
+                  .status(404)
+                  .send({ status: 404, message: "Este título ya existe." });
+              } else {
+                res.status(500).send({
+                  status: 500,
+                  message: "Error del servidor, inténtalo más tarde.",
+                });
+              }
+            } else if (!courseStored) {
+              res
+                .status(404)
+                .send({ status: 404, message: "Error al enviar la petición." });
+            } else {
+              res
+                .status(200)
+                .send({ status: 200, message: "Curso creado correctamente." });
+            }
+          });
+        }
       }
-    });
-  }
+    }
+  });
 }
 
 function updateCourse(req, res) {
@@ -97,6 +115,19 @@ function getCourses(req, res) {
 function getCourse(req, res) {
   const { url } = req.params;  
   Education.findOne({ url }, (err, courseStored) => {
+    if (err) {
+      res.status(500).send({status: 500, message: "Error del servidor."});
+    } else if (!courseStored) {
+      res.status(404).send({status: 404, message: "No se ha encontrado el curso."});
+    } else {
+      res.status(200).send({status: 200, course: courseStored});
+    }
+  });
+}
+
+function getCourseByOrder(req, res) {
+  const { order } = req.params;  
+  Education.findOne({ order }, (err, courseStored) => {
     if (err) {
       res.status(500).send({status: 500, message: "Error del servidor."});
     } else if (!courseStored) {
@@ -285,6 +316,7 @@ module.exports = {
   addCourse,
   getCourses,
   getCourse,
+  getCourseByOrder,
   uploadImage,
   addTag,
   updateCourse,
