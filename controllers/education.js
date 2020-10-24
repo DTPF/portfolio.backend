@@ -113,7 +113,7 @@ function getCourses(req, res) {
 }
 
 function getCourse(req, res) {
-  const { url } = req.params;  
+  const { url } = req.params;
   Education.findOne({ url }, (err, courseStored) => {
     if (err) {
       res.status(500).send({status: 500, message: "Error del servidor."});
@@ -126,7 +126,7 @@ function getCourse(req, res) {
 }
 
 function getCourseByOrder(req, res) {
-  const { order } = req.params;  
+  const { order } = req.params;
   Education.findOne({ order }, (err, courseStored) => {
     if (err) {
       res.status(500).send({status: 500, message: "Error del servidor."});
@@ -152,7 +152,7 @@ function uploadImage(req, res) {
       const imageOld = course.image;
       const filePathOld = "./uploads/education/" + imageOld;
       const filePathThumbOld = "./uploads/education/thumb_" + imageOld;
-      if (req.files) {
+      if (req.files.image) {
         let filePath = req.files.image.path;
         let fileSplit = filePath.split("/");
         let fileName = fileSplit[2];
@@ -160,7 +160,7 @@ function uploadImage(req, res) {
         let fileExt = extSplit[1];
 
         if (req.files.image.type === null) {
-            res.status(404).send({ status: 404, message: "La imágen es obligatoria." });
+          res.status(404).send({ status: 404, message: "La imágen es obligatoria." });
         } else if (
           fileExt !== "jpg" &&
           fileExt !== "jpeg" &&
@@ -194,12 +194,12 @@ function uploadImage(req, res) {
                 }
                 const filePathNew = "./uploads/education/" + fileName;
                 fs.writeFileSync('./uploads/education/thumb_'+ fileName, imagemagick.convert({
-                  srcData: fs.readFileSync(filePathNew),
-                  width: 340,
-                  height: 205,
-                  resizeStyle: 'aspectfill',
-                  gravity: 'Center'
-              }));
+                    srcData: fs.readFileSync(filePathNew),
+                    width: 340,
+                    height: 205,
+                    resizeStyle: 'aspectfill',
+                    gravity: 'Center'
+                  }));
                 res.status(200).send({
                   status: 200,
                   message: "Imágen añadida correctamente.",
@@ -209,6 +209,8 @@ function uploadImage(req, res) {
             }
           );
         }
+      } else {
+        res.status(500).send({ status: 404, message: "Ningún archivo subido." });
       }
     }
   });
@@ -229,41 +231,47 @@ function getImage(req, res) {
 function addTag(req, res) {
   const params = req.params;
   let courseTag = req.body;
-
+  
   if (courseTag.length === 0) {
     res.status(400).send({ status: 400, message: "Introduce el tag." });
   } else {
     Education.findById({ _id: params.id }, (err, tagMatch) => {
-      const tags = tagMatch.tags;
-      const match = tags.includes(courseTag.tags);
-      if (err) {
-        res.status(500).send({ status: 500, message: "Error del servidor." });
-      } else if (!tagMatch) {
-        res
-          .status(404)
-          .send({ status: 404, message: "No se ha encontrado el curso." });
-      } else if (match) {
-        res.status(404).send({ status: 404, message: "Ya existe este tag." });
-      } else {
-        Education.findByIdAndUpdate(
-          { _id: params.id },
-          { $push: courseTag },
-          (err, courseData) => {
-            if (err) {
-              res
-                .status(500)
-                .send({ status: 500, message: "Error del servidor." });
-            } else if (!courseData) {
-              res
-                .status(404)
-                .send({ status: 404, message: "No se ha encontrado el curso." });
-            } else {
-              res
-                .status(200)
-                .send({ status: 200, message: "Tag añadido correctamente." });
+      if (tagMatch.tags) {
+        let tags = tagMatch.tags;
+        let match = tags.includes(courseTag.tags);
+        if (err) {
+          res.status(500).send({ status: 500, message: "Error del servidor." });
+        } else if (!tagMatch) {
+          res
+            .status(404)
+            .send({ status: 404, message: "No se ha encontrado el curso." });
+        } else if (match) {
+          res.status(404).send({ status: 404, message: "Ya existe este tag." });
+        } else {
+          Education.findByIdAndUpdate(
+            { _id: params.id },
+            { $push: courseTag },
+            (err, courseData) => {
+              if (err) {
+                res
+                  .status(500)
+                  .send({ status: 500, message: "Error del servidor." });
+              } else if (!courseData) {
+                res
+                  .status(404)
+                  .send({ status: 404, message: "No se ha encontrado el curso." });
+              } else {
+                res
+                  .status(200)
+                  .send({ status: 200, message: "Tag añadido correctamente." });
+              }
             }
-          }
-        );
+          );
+        }
+      } else {
+        res
+          .status(500)
+          .send({ status: 500, message: "Cannot read property 'tags' of null." });
       }
     });
   }

@@ -30,7 +30,7 @@ function signUp(req, res) {
           user.password = hash;
           user.save((err, userStored) => {
             if (err) {
-              res.status(500).send({ status: 500, message: "El usuario ya existe." });
+              res.status(400).send({ status: 400, message: "El usuario ya existe." });
             } else {
               if (!userStored) {
                 res.status(404).send({ status: 404, message: "Error al crear el usuario." });
@@ -119,7 +119,7 @@ function uploadAvatar(req, res) {
         let user = userData;
         const avatarNameOld = user.avatar;
         const filePathOld = "./uploads/avatar/" + avatarNameOld;
-        if (req.files) {
+        if (req.files.avatar) {
           let filePath = req.files.avatar.path;
           let fileSplit = filePath.split("/");
           let fileName = fileSplit[2];
@@ -154,6 +154,8 @@ function uploadAvatar(req, res) {
               }
             );
           }
+        } else {
+          res.status(404).send({ status: 404,  message: "Sube la imágen." });
         }
       }
     }
