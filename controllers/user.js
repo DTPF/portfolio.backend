@@ -35,7 +35,10 @@ function signUp(req, res) {
               if (!userStored) {
                 res.status(404).send({ status: 404, message: "Error al crear el usuario." });
               } else {
-                res.status(200).send({ status: 200, message: "Usuario creado correctamente.", user: userStored });
+                function registerDelay() {
+                  res.status(200).send({ status: 200, message: "Usuario creado correctamente.", user: userStored });
+                }
+                setTimeout(registerDelay, 5000);
               }
             }
           });
@@ -61,7 +64,10 @@ function signIn(req, res) {
           if (err) {
             res.status(500).send({ status: 500, message: "Error del servidor." });
           } else if (!check) {
-            res.status(404).send({ status: 404, message: "La contraseña es incorrecta." });
+            function loginDelay() {
+              res.status(404).send({ status: 404, message: "La contraseña es incorrecta." });
+            }           
+            setTimeout(loginDelay, 5000);
           } else {
             if (!userStored.active) {
               res

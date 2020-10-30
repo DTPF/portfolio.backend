@@ -2,14 +2,12 @@ const Contact = require("../models/contact");
 
 function contactMe(req, res) {
   const contact = new Contact();
-  const { email, name, subject, order } = req.body;
+  const { email, name, subject } = req.body;
   contact.email = email.toLowerCase();
   contact.name = name;
   contact.subject = subject;
   contact.readed = false;
-  contact.order = order;
   contact.date = contact.date;
-
   if (!email && !subject) {
     res.status(404).send({
       status: 404,
@@ -77,23 +75,10 @@ function contactMe(req, res) {
   }
 }
 
-function getMessages(req, res) {
-  Contact.find()
-         .exec((err, messagesStored) => {
-           if(err) {
-             res.status(500).send({ status: 500, message: "Error del servidor." });
-           } else if (!messagesStored) {
-             res.status(404).send({ status: 404, message: "No hay mensajes en la base de datos." });
-           } else {
-             res.status(200).send({ status: 200, messages: messagesStored.length });
-           }
-         });
-}
-
 function getMessagesUnread(req, res) {
   const query = req.query;
   Contact.find({ readed: query.readed })
-        .sort({ order: "asc"})
+        .sort({ date: "desc"})
         .exec((err, messagesStored) => {
           if(err) {
             res.status(500).send({ status: 500, message: "Error del servidor." });
@@ -107,8 +92,7 @@ function getMessagesUnread(req, res) {
 
 function checkMessage(req, res) {
   const { id } = req.params;
-  const { readed } = req.body;
-  
+  const { readed } = req.body;  
   Contact.findByIdAndUpdate(id, {readed}, (err, messageChecked) => {
     if (err) {
       res.status(500).send({ status: 500, message: "Error del servidor."} );
@@ -126,7 +110,6 @@ function checkMessage(req, res) {
 
 function deleteMessage(req, res) {
   const { id } = req.params;
-
   Contact.findByIdAndRemove(id, (err, messageDelete) => {
     if(err) {
       res.status(500).send({ status: 500, message: "Error del servidor." });
@@ -140,7 +123,6 @@ function deleteMessage(req, res) {
 
 module.exports = {
   contactMe,
-  getMessages,
   getMessagesUnread,
   checkMessage,
   deleteMessage
