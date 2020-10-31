@@ -11,6 +11,7 @@ const userRoutes = require("./routers/user");
 const menuRoutes = require("./routers/menu");
 const contactRoutes = require("./routers/contact");
 const educationRoutes = require("./routers/education");
+const systemRoutes = require("./routers/system");
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -33,6 +34,7 @@ app.use(`/api/${API_VERSION}`, userRoutes);
 app.use(`/api/${API_VERSION}`, menuRoutes);
 app.use(`/api/${API_VERSION}`, contactRoutes);
 app.use(`/api/${API_VERSION}`, educationRoutes);
+app.use(`/api/${API_VERSION}`, systemRoutes);
 // app.use('/', express.static('client', {redirect: false}));
 // app.get('*', function(req, res, next){
 //   res.sendFile(path.resolve('client/index.html'));
