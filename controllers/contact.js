@@ -121,9 +121,39 @@ function deleteMessage(req, res) {
   });
 }
 
+function getMessagesLength(req, res) {
+  Contact.find({ readed: false }).then((messages) => {
+    if (!messages) {
+      res.status(404).send({ message: "No se ha encontrado ningún mensaje." });
+    } else {
+      res.status(200).send({ messagesLength: messages.length });
+    }
+  });
+}
+
+function getLastMessageEmail(req, res) {
+  Contact.find({ readed: false })
+        .sort({ date: "desc"})
+        .exec((err, messagesStored) => {
+          if(err) {
+            console.log(err);
+            res.status(500).send({ status: 500, message: "Error del servidor." });
+          } else if (!messagesStored) {
+            res.status(404).send({ status: 404, message: "No hay mensajes en la base de datos." });
+          } else {
+            if (messagesStored.length === 0) {
+              res.status(200).send({ status: 200, message: "Bandeja de entrada vacía."});
+            } else {
+              res.status(200).send({ email: messagesStored[0].email });
+            }
+          }
+        });
+}
 module.exports = {
   contactMe,
   getMessagesUnread,
   checkMessage,
-  deleteMessage
+  deleteMessage,
+  getMessagesLength,
+  getLastMessageEmail
 };
