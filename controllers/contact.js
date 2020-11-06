@@ -121,16 +121,6 @@ function deleteMessage(req, res) {
   });
 }
 
-function getMessagesLength(req, res) {
-  Contact.find({ readed: false }).then((messages) => {
-    if (!messages) {
-      res.status(404).send({ message: "No se ha encontrado ningún mensaje." });
-    } else {
-      res.status(200).send({ messagesLength: messages.length });
-    }
-  });
-}
-
 function getLastMessageEmail(req, res) {
   Contact.find({ readed: false })
         .sort({ date: "desc"})
@@ -154,6 +144,5 @@ module.exports = {
   getMessagesUnread,
   checkMessage,
   deleteMessage,
-  getMessagesLength,
   getLastMessageEmail
 };

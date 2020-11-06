@@ -1,6 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-var path = require('path');
+const path = require('path');
 
 const app = express();
 const { API_VERSION } = require("./config");
