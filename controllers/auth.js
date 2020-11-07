@@ -5,17 +5,15 @@ const User = require("../models/user");
 function willExpireToken(token) {
   const { exp } = jwt.decodedToken(token);
   const currentDate = moment().unix();
-
   if (currentDate > exp) {
     return true;
   }
   return false;
 }
 
-function refreshAccesssToken(req, res) {
+function refreshAccessToken(req, res) {
   const { refreshToken } = req.body;
   const isTokenExpired = willExpireToken(refreshToken);
-
   if (isTokenExpired) {
     res.status(404).send({ message: "El refreshToken ha expirado." });
   } else {
@@ -38,5 +36,5 @@ function refreshAccesssToken(req, res) {
 }
 
 module.exports = {
-  refreshAccesssToken,
+  refreshAccessToken,
 };
